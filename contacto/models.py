@@ -13,10 +13,10 @@ class Personas(models.Model):
 
 class Email(models.Model):
     email = models.EmailField(unique=True)
-    persona = models.ForeignKey(Personas, on_delete=models.CASCADE, related_name='emails')
+    persona = models.ForeignKey(Personas, on_delete=models.CASCADE, related_name='emails',)
 
     def __str__(self):
-        return f'{self.email} {self.persona_id}'
+        return f'{self.email} {self.persona}'
 
 class Telefono(models.Model):
     telefono = models.BigIntegerField(validators=[
@@ -26,4 +26,4 @@ class Telefono(models.Model):
     persona = models.ForeignKey(Personas, on_delete=models.CASCADE, related_name='telefonos')
 
     def __str__(self):
-        return f'{self.telefono} {self.persona_id}'
+        return f'{self.telefono} {self.persona}'

@@ -37,6 +37,19 @@ class PersonasView(APIView):
                 emailSerializer.save(persona=persona)
             return Response(personaSerializer.data, status=status.HTTP_200_OK)
         return Response(personaSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, numero_documento = None):
+        if(not numero_documento): Response('No se ha encontrado esta persona', status=status.HTTP_400_BAD_REQUEST)
+        try:
+            persona = Personas.objects.get(numero_documento = numero_documento)
+        except Personas.DoesNotExist:
+            return Response('No se encontro la persona', status=status.HTTP_404_NOT_FOUND)
+        serializer = PersonaSerializer(persona, data=request.data)
+        if(serializer.is_valid()):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def delete(self, request, numero_documento=None):
         if(numero_documento == None): return(Response('Este número de documento no existe', status=status.HTTP_400_BAD_REQUEST))        
@@ -52,6 +65,9 @@ class PersonasView(APIView):
 
 
 class TelefonosView(APIView):
+    def get(self, request, id=None):
+        return Response(status = status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def post(self, request):
         serializer = TelefonoSerializer(data = request.data)
         if (serializer.is_valid()):
@@ -67,12 +83,29 @@ class TelefonosView(APIView):
         
         try:
             telefono = Telefono.objects.get(id = id)
-            telefono.delete()
-            return Response('Telefono eliminado', status=status.HTTP_204_NO_CONTENT)
         except Telefono.DoesNotExist:
             return Response('Este telefono no existe', status=status.HTTP_404_NOT_FOUND)
-
+        
+        telefono.delete()
+        return Response('Telefono eliminado', status=status.HTTP_204_NO_CONTENT)
+    
+    def put(self, request, id = None):
+        if(id): 
+            try:
+                telefono = Telefono.objects.get(id = id)
+            except Telefono.DoesNotExist:
+                return Response('No se encontro el telefono', status=status.HTTP_404_NOT_FOUND)
+            serializer = TelefonoSerializer(telefono, data=request.data)
+            if(serializer.is_valid()):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            Response('No se ha encontrado este telefono', status=status.HTTP_400_BAD_REQUEST)
 class EmailsView(APIView):
+    def get(self, request, id=None):
+        return Response(status = status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def post(self, request):
         serializer = EmailSerializer(data = request.data)
         if (serializer.is_valid()):
@@ -81,13 +114,26 @@ class EmailsView(APIView):
         return Response('Se enviaron datos incorrectos', status=status.HTTP_400_BAD_REQUEST)    
     
     def delete(self, request, id=None):
-        if(id == None): return(Response('Este número de telefono no existe', status=status.HTTP_400_BAD_REQUEST))        
+        if(id == None): return(Response('Este email no existe', status=status.HTTP_400_BAD_REQUEST))        
         
         try:
-            telefono = Personas.objects.get(id = id)
-            telefono.delete()
-            return Response('Telefono eliminado', status=status.HTTP_204_NO_CONTENT)
-        except Personas.DoesNotExist:
-            return Response('Este telefono no existe', status=status.HTTP_404_NOT_FOUND)
+            telefono = Email.objects.get(id = id)
+        except Email.DoesNotExist:
+            return Response('Este email no existe', status=status.HTTP_404_NOT_FOUND)
+        
+        telefono.delete()
+        return Response('Email eliminado', status=status.HTTP_204_NO_CONTENT)
+    
+    def put(self, request, id = None):
+        if(not id): Response('No se ha encontrado este email', status=status.HTTP_400_BAD_REQUEST)
+        try:
+            email = Email.objects.get(id = id)
+        except Email.DoesNotExist:
+            return Response('No se encontro el email', status=status.HTTP_404_NOT_FOUND)
+        serializer = EmailSerializer(email, data=request.data)
+        if(serializer.is_valid()):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
